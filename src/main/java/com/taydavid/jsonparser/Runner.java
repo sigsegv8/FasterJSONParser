@@ -21,34 +21,34 @@ public class Runner {
 
 		try {
 			jsonData = Files.readAllBytes(Paths.get("res/report.json"));
-			ObjectMapper objectMapper = new ObjectMapper();
+			final ObjectMapper objectMapper = new ObjectMapper();
 			rootNode = objectMapper.readTree(jsonData);
 		} catch (IOException e) {
 			throw new CompletionException(
 					"IOException occured during reading of json file or bytestream of json file is invalid", e);
 		}
 
-		JsonNode testSuitesNode = rootNode.path(Constants.TEST_SUITES_KEY);
+		final JsonNode testSuitesNode = rootNode.path(Constants.TEST_SUITES_KEY);
 		testSuitesNode.forEach(suite -> {
-			JsonNode suiteName = suite.get(Constants.SUITE_NAME_KEY);
-			JsonNode results = suite.get(Constants.RESULTS_KEY);
+			final String suiteName = suite.get(Constants.SUITE_NAME_KEY).textValue();
+			final JsonNode results = suite.get(Constants.RESULTS_KEY);
 
-			Map<String, String[]> passedTestCases = new TreeMap<>();
-			Map<String, String[]> failedTestCases = new TreeMap<>();
+			final Map<String, String[]> passedTestCases = new TreeMap<>();
+			final Map<String, String[]> failedTestCases = new TreeMap<>();
 
 			int[] blockedTestCaseCount = { 0 };
 			int[] timeExecutionGreaterThan10Count = { 0 };
 
 			results.forEach(result -> {
-				JsonNode status = result.findValue(Constants.STATUS_KEY);
-				String executionTime = result.get(Constants.TIME_KEY).textValue();
-				if (StringUtils.equalsIgnoreCase(status.textValue(), Constants.STATUS.PASS.name())) {
+				final String status = result.get(Constants.STATUS_KEY).textValue();
+				final String executionTime = result.get(Constants.TIME_KEY).textValue();
+				if (StringUtils.equalsIgnoreCase(status, Constants.STATUS.PASS.name())) {
 					passedTestCases.put(result.get(Constants.TEST_NAME_KEY).textValue(),
 							new String[] { executionTime, result.get(Constants.STATUS_KEY).textValue() });
-				} else if (StringUtils.equalsIgnoreCase(status.textValue(), Constants.STATUS.FAIL.name())) {
+				} else if (StringUtils.equalsIgnoreCase(status, Constants.STATUS.FAIL.name())) {
 					failedTestCases.put(result.get(Constants.TEST_NAME_KEY).textValue(), new String[] {
 							result.get(Constants.TIME_KEY).textValue(), result.get(Constants.STATUS_KEY).textValue() });
-				} else if (StringUtils.equalsIgnoreCase(status.textValue(), Constants.STATUS.BLOCKED.name())) {
+				} else if (StringUtils.equalsIgnoreCase(status, Constants.STATUS.BLOCKED.name())) {
 					blockedTestCaseCount[0]++;
 				}
 
@@ -58,7 +58,7 @@ public class Runner {
 			});
 
 			// Print test report to console
-			System.out.println("SUITE NAME: " + suiteName.textValue());
+			System.out.println("SUITE NAME: " + suiteName);
 			System.out.println("TOTAL PASSED: " + passedTestCases.size());
 			passedTestCases.entrySet().forEach(entry -> System.out.println("Test Case Name: " + entry.getKey()
 					+ "\nExecution Time: " + entry.getValue()[0] + "\nStatus: " + entry.getValue()[1] + "\n"));
