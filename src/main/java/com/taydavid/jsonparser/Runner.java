@@ -42,12 +42,11 @@ public class Runner {
 			results.forEach(result -> {
 				final String status = result.get(Constants.STATUS_KEY).textValue();
 				final String executionTime = result.get(Constants.TIME_KEY).textValue();
+				final String testName = result.get(Constants.TEST_NAME_KEY).textValue();
 				if (StringUtils.equalsIgnoreCase(status, Constants.STATUS.PASS.name())) {
-					passedTestCases.put(result.get(Constants.TEST_NAME_KEY).textValue(),
-							new String[] { executionTime, result.get(Constants.STATUS_KEY).textValue() });
+					passedTestCases.put(testName, new String[] { executionTime, status });
 				} else if (StringUtils.equalsIgnoreCase(status, Constants.STATUS.FAIL.name())) {
-					failedTestCases.put(result.get(Constants.TEST_NAME_KEY).textValue(), new String[] {
-							result.get(Constants.TIME_KEY).textValue(), result.get(Constants.STATUS_KEY).textValue() });
+					failedTestCases.put(testName, new String[] { executionTime, status });
 				} else if (StringUtils.equalsIgnoreCase(status, Constants.STATUS.BLOCKED.name())) {
 					blockedTestCaseCount[0]++;
 				}
